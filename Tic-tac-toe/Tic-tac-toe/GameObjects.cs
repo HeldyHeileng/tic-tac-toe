@@ -15,7 +15,7 @@ namespace ticTacToe
     //Игровые объекты
     interface IPlayableObject
     {
-        void Draw(int row, int col);
+        void Draw(CellPointer poiner);
     }
 
     //Типы линий, которые отрисовываются при выигрыше
@@ -79,12 +79,12 @@ namespace ticTacToe
         {
             switch ((int)type)
             {
-                case 1: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 50, 298, 50); break;
-                case 2: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 150, 298, 150); break;
-                case 3: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 250, 298, 250); break;
-                case 4: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 50, 2, 50, 298); break;
-                case 5: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 150, 2, 150, 298); break;
-                case 6: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 250, 2, 250, 298); break;
+                case 1: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 50, 2, 50, 298); break;
+                case 2: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 150, 2, 150, 298); break;
+                case 3: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 250, 2, 250, 298); break;
+                case 4: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 50, 298, 50); break;
+                case 5: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 150, 298, 150); break;
+                case 6: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 250, 298, 250); break;
                 case 7: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 2, 2, 298, 298); break;
                 case 8: DisplaySettings.panel.DrawLine(DisplaySettings.dashPen, 298, 2, 2, 298); break;
             }
@@ -94,11 +94,11 @@ namespace ticTacToe
     //Крестик
     public class Cross : IPlayableObject
     {
-        public void Draw(int row, int col)
+        public void Draw(CellPointer pointer)
         {
             //Вычисление координат левой верхней точки крестика
-            var xPos = row * Settings.CELL_SIZE + Settings.MARGIN;
-            var yPos = col * Settings.CELL_SIZE + Settings.MARGIN;
+            var xPos = pointer.row * Settings.CELL_SIZE + Settings.MARGIN;
+            var yPos = pointer.col * Settings.CELL_SIZE + Settings.MARGIN;
 
             //Вычисление размера крестика
             var size = Settings.CELL_SIZE - 2 * Settings.MARGIN;
@@ -111,11 +111,11 @@ namespace ticTacToe
     //Нолик
     public class Nought : IPlayableObject
     {
-        public void Draw(int row, int col)
+        public void Draw(CellPointer pointer)
         {
             //Вычисление координат левой верхней точки прямоугольника, в котором будет располагаться нолик
-            var xPos = row * Settings.CELL_SIZE + Settings.MARGIN;
-            var yPos = col * Settings.CELL_SIZE + Settings.MARGIN;
+            var xPos = pointer.row * Settings.CELL_SIZE + Settings.MARGIN;
+            var yPos = pointer.col * Settings.CELL_SIZE + Settings.MARGIN;
 
             //Вычисление размера нолика
             var ellipseSize = Settings.CELL_SIZE - 2 * Settings.MARGIN;

@@ -7,25 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ExtensionMethods;
+using System.Threading;
 
 namespace ticTacToe
 {
     public partial class Form1 : Form
     {
-        public bool qwe = false;
-        public bool pervhod = true;  //true говорит о том, что у компьютера нынче первый ход. первым ходом компьютер должен ходить в
-                                     //центр, дальше по ситуации. значение false переправляет на путь "дальше по ситуации"
-        public bool first = true;   //меняется на false сразу после первого хода юзера(играет крестиками), нужен для проверки, был ли
-                                    // первый ход в центр или нет
-        public int x = -1;
-        public int y = -1;
-        public int xfir = -1; // первый ход юзера
-        public int yfir = -1; // когда он играет крестиками
-        public int xlast = -1;//последний
-        public int ylast = -1;// ход юзера
+        public bool isGameStarted = false;
+        public CellPointer lastMove = new CellPointer(-1, -1); //последний ход 
         public int win = 0;//если 1- выиграл комп, 2-пользователь, 3- ничья
-        public bool hdpc = false;//true - сейчас ход компьютера, false - ход пользователя
-        public int pc = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
+        public PlayerType currentMove = PlayerType.None;//true - сейчас ход компьютера, false - ход пользователя
+        public PlayerType firstMove = PlayerType.None;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
 
         //Инициализируем классы объектов
         Grid grid = new Grid(); // сетка
@@ -34,7 +26,7 @@ namespace ticTacToe
         Nought nought = new Nought(); // нолик
 
         //Инициализируем массив данных о текущем состоянии игры, все клетки пустые
-        public Cell[,] cells = new Cell[Settings.GRID_SIZE, Settings.GRID_SIZE].Populate(() => new Cell());        
+        public Cell[,] cells = new Cell[Settings.GRID_SIZE, Settings.GRID_SIZE].Populate(() => new Cell());
 
         public Form1()
         {
@@ -51,394 +43,129 @@ namespace ticTacToe
 
         private void startGameBtn_Click(object sender, EventArgs e)
         {
-            qwe = true;
-            if (pc == 0)  // pc равен 0 тогда, когда пользователь еще не выбрал кто будет ходить первым
+            isGameStarted = true;
+             
+            if (firstMove == PlayerType.None)  // pc равен 0 тогда, когда пользователь еще не выбрал кто будет ходить первым
             {
                 label1.Text = "Выберите игрока, который будет ходить первым!";
             }
             else
             {
-                if (pc == 1)  //первый ход компа
+                //скрываем выбор первого ходящего
+                computerFirstMove.Visible = false;
+                playerFirstMove.Visible = false;
+
+                if (firstMove == PlayerType.PC) //первый ход компа
                 {
-                    hdpc = true;
-                    hod1();
-                    computerFirstMove.Visible = false;
-                    playerFirstMove.Visible = false;
+                    //делаем ход
+                    PCMoveToCenter();
                 }
-                else     //первый ход пользователя
+                else //первый ход пользователя
                 {
-                    hdpc = false;
                     label1.Text = "Ваш ход!";
-                    computerFirstMove.Visible = false;
-                    playerFirstMove.Visible = false;
                 }
+
+                //ждем ход пользователя
+                currentMove = PlayerType.User;
             }
-        }    //работает
+        }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             grid.Draw();
-        }  //работает
+        }
 
         private void panel1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (qwe)
+            if (firstMove == PlayerType.None)  //если пользователь сразу нажимает на доску, не выбрав кто будет ходить первым
             {
-                if (pc == 0)  //если пользователь сразу нажимает на доску, не выбрав кто будет ходить первым
+                label1.Text = "Выберите игрока, который будет ходить первым!";
+            }
+            if (isGameStarted)
+            {
+                label1.Text = "Ваш ход!";
+                if (currentMove == PlayerType.User)   //ход пользователя
                 {
-                    label1.Text = "Выберите игрока, который будет ходить первым!";
-                }
-                else
-                {
-                    if (hdpc == false)   //ход пользователя
+                    //Вычисляем на какую ячейку кликнули 
+                    int row = e.Location.X / 100;
+                    int col = e.Location.Y / 100;
+
+                    //Если ячейка пустая
+                    if (cells[col, row].type == CellType.Empty)
                     {
-                        if (pc == 2)    //первый ход пользователя, значит он играет крестиками
+                        //Запоминаем ход
+                        lastMove.Move(col, row);
+                        cells[col, row].type = CellType.User;
+
+                        //Отрисовываем
+                        if (firstMove == PlayerType.User)    //первый ход пользователя, значит он играет крестиками
                         {
-                            if (e.Location.X > 0 && e.Location.X < 100 && e.Location.Y > 0 && e.Location.Y < 100)  //1 ячейка
-                            {
-
-                                if (cells[0, 0].type == CellType.Empty)
-                                {
-                                    cross.Draw(0, 0);
-                                    cells[0, 0].type = CellType.User;
-                                    xlast = 0;
-                                    ylast = 0;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-
-                            if (e.Location.X > 100 && e.Location.X < 200 && e.Location.Y > 0 && e.Location.Y < 100)//2 ячейка
-                            {
-                                if (cells[1, 0].type == CellType.Empty)
-                                {
-                                    cross.Draw(1, 0);
-                                    cells[1, 0].type = CellType.User;
-                                    xlast = 1;
-                                    ylast = 0;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 200 && e.Location.X < 300 && e.Location.Y > 0 && e.Location.Y < 100)//3 ячейка
-                            {
-                                if (cells[2, 0].type == CellType.Empty)
-                                {
-                                    cross.Draw(2, 0);
-                                    cells[2, 0].type = CellType.User;
-                                    xlast = 2;
-                                    ylast = 0;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 0 && e.Location.X < 100 && e.Location.Y > 100 && e.Location.Y < 200)//4 ячейка
-                            {
-                                if (cells[0, 1].type == CellType.Empty)
-                                {
-                                    cross.Draw(0, 1);
-                                    cells[0, 1].type = CellType.User;
-                                    xlast = 0;
-                                    ylast = 1;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 100 && e.Location.X < 200 && e.Location.Y > 100 && e.Location.Y < 200)//5 ячейка
-                            {
-                                if (cells[1, 1].type == CellType.Empty)
-                                {
-                                    cross.Draw(1, 1);
-                                    cells[1, 1].type = CellType.User;
-                                    xlast = 1;
-                                    ylast = 1;
-                                    if (first)
-                                    {
-                                        xfir = 1;
-                                        yfir = 1;
-                                        first = false;
-                                    }
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 200 && e.Location.X < 300 && e.Location.Y > 100 && e.Location.Y < 200)//6 ячейка
-                            {
-                                if (cells[2, 1].type == CellType.Empty)
-                                {
-                                    cross.Draw(2, 1);
-                                    cells[2, 1].type = CellType.User;
-                                    xlast = 2;
-                                    ylast = 1;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 0 && e.Location.X < 100 && e.Location.Y > 200 && e.Location.Y < 300)//7 ячейка
-                            {
-                                if (cells[0, 2].type == CellType.Empty)
-                                {
-                                    cross.Draw(0, 2);
-                                    cells[0, 2].type = CellType.User;
-                                    xlast = 0;
-                                    ylast = 2;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 100 && e.Location.X < 200 && e.Location.Y > 200 && e.Location.Y < 300)//8 ячейка
-                            {
-                                if (cells[1, 2].type == CellType.Empty)
-                                {
-                                    cross.Draw(1, 2);
-                                    cells[1, 2].type = CellType.User;
-                                    xlast = 1;
-                                    ylast = 2;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 200 && e.Location.X < 300 && e.Location.Y > 200 && e.Location.Y < 300)//8 ячейка
-                            {
-                                if (cells[2, 2].type == CellType.Empty)
-                                {
-                                    cross.Draw(2, 2);
-                                    cells[2, 2].type = CellType.User;
-                                    xlast = 2;
-                                    ylast = 2;
-                                    first = false;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
+                            cross.Draw(lastMove);
                         }
-                        else   // пользователь играет ноликами!!!
+                        else
                         {
-                            if (e.Location.X > 0 && e.Location.X < 100 && e.Location.Y > 0 && e.Location.Y < 100)  //1 ячейка
-                            {
-
-                                if (cells[0, 0].type == CellType.Empty)
-                                {
-                                    nought.Draw(0, 0);
-                                    cells[0, 0].type = CellType.User;
-                                    xlast = 0;
-                                    ylast = 0;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-
-                            if (e.Location.X > 100 && e.Location.X < 200 && e.Location.Y > 0 && e.Location.Y < 100)//2 ячейка
-                            {
-                                if (cells[1, 0].type == CellType.Empty)
-                                {
-                                    nought.Draw(1, 0);
-                                    cells[1, 0].type = CellType.User;
-                                    xlast = 1;
-                                    ylast = 0;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 200 && e.Location.X < 300 && e.Location.Y > 0 && e.Location.Y < 100)//3 ячейка
-                            {
-                                if (cells[2, 0].type == CellType.Empty)
-                                {
-                                    nought.Draw(2, 0);
-                                    cells[2, 0].type = CellType.User;
-                                    xlast = 2;
-                                    ylast = 0;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 0 && e.Location.X < 100 && e.Location.Y > 100 && e.Location.Y < 200)//4 ячейка
-                            {
-                                if (cells[0, 1].type == CellType.Empty)
-                                {
-                                    nought.Draw(0, 1);
-                                    cells[0, 1].type = CellType.User;
-                                    xlast = 0;
-                                    ylast = 1;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 100 && e.Location.X < 200 && e.Location.Y > 100 && e.Location.Y < 200)//5 ячейка
-                            {
-                                if (cells[1, 1].type == CellType.Empty)
-                                {
-                                    nought.Draw(1, 1);
-                                    cells[1, 1].type = CellType.User;
-                                    xlast = 1;
-                                    ylast = 1;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 200 && e.Location.X < 300 && e.Location.Y > 100 && e.Location.Y < 200)//6 ячейка
-                            {
-                                if (cells[2, 1].type == CellType.Empty)
-                                {
-                                    nought.Draw(2, 1);
-                                    cells[2, 1].type = CellType.User;
-                                    xlast = 2;
-                                    ylast = 1;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 0 && e.Location.X < 100 && e.Location.Y > 200 && e.Location.Y < 300)//7 ячейка
-                            {
-                                if (cells[0, 2].type == CellType.Empty)
-                                {
-                                    nought.Draw(0, 2);
-                                    cells[0, 2].type = CellType.User;
-                                    xlast = 0;
-                                    ylast = 2;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 100 && e.Location.X < 200 && e.Location.Y > 200 && e.Location.Y < 300)//8 ячейка
-                            {
-                                if (cells[1, 2].type == CellType.Empty)
-                                {
-                                    nought.Draw(1, 2);
-                                    cells[1, 2].type = CellType.User;
-                                    xlast = 1;
-                                    ylast = 2;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
-                            if (e.Location.X > 200 && e.Location.X < 300 && e.Location.Y > 200 && e.Location.Y < 300)//9 ячейка
-                            {
-                                if (cells[2, 2].type == CellType.Empty)
-                                {
-                                    nought.Draw(2, 2);
-                                    cells[2, 2].type = CellType.User;
-                                    xlast = 2;
-                                    ylast = 2;
-                                }
-                                else
-                                {
-                                    label1.Text = "Ячейка уже занята";
-                                }
-                            }
+                            nought.Draw(lastMove);
                         }
-                        hdpc = true;   //след ход компьютера
-                        hod();
+
+                        currentMove = PlayerType.PC;   //след ход компьютера
+                        PCMove();
+                    }
+                    else
+                    {
+                        label1.Text = "Ячейка уже занята";
                     }
                 }
             }
-        }   //рабоатет
+        }
 
         private void computerFirstMove_CheckedChanged(object sender, EventArgs e)
         {
             if (computerFirstMove.Checked)
             {
-                pc = 1;   //первый ход компьютера
+                firstMove = PlayerType.PC;   //первый ход компьютера
             }
-        }  //работает
+        } 
 
         private void playerFirstMove_CheckedChanged(object sender, EventArgs e)
         {
             if (playerFirstMove.Checked)
             {
-                pc = 2;    //первый ход человека
+                firstMove = PlayerType.User;    //первый ход человека
             }
-        }    // работает
+        } 
 
-        private void hod1()
+        private void PCMoveToCenter()
         {
-            if (cells[1, 1].type == CellType.Empty)
-            {
-                cells[1, 1].type = CellType.PC;   //компьютер первым ходом всегда ходит в центр(если есть возможность), независимо от того какими он играет
-            }
-            else
-            {
-                random();
-            }
+            cells[1, 1].type = CellType.PC;   //компьютер первым ходом всегда ходит в центр(если есть возможность), независимо от того какими он играет
             paint();
-            hdpc = false;
-            pervhod = false;
-        }    //работает
-        private void hod()
+        }
+        private void PCMove()
         {
-            nichia();    //есть ли свободное поле
+            checkIfDraw();    //есть ли свободное поле
             tryToWin();    //1 правило
             if (win == 0)
             {
                 tryToProtect();  //2 правило
-                if (hdpc == true)   //если 1,2 правила невыполнены, то есть до сих пор ход компа, он должен сделать либо противоположный
+                if (currentMove == PlayerType.PC)   //если 1,2 правила невыполнены, то есть до сих пор ход компа, он должен сделать либо противоположный
                 {                              // либо любой ход
-                    if (pc == 1)    //если первый сходил комп, значит по тактике нужно ходить точно противоположно ходу юзера
+                    if (firstMove == PlayerType.PC)    //если первый сходил комп, значит по тактике нужно ходить точно противоположно ходу юзера
                     {
-                        krestiki();//ход противоположный
+                        oppositeMove();//ход противоположный
                     }
                     else  //комп ходит вторым
                     {
-                        if (xfir == 1 && yfir == 1)   //ходят в центр - ходим в углы
+                        if (cells[1, 1].type == CellType.Empty) //если центральная клетка еще не занята, то ходим в центр
+                        {
+                            PCMoveToCenter();   //ходим в центр
+                        }
+                        else
                         {
                             ugol();
                         }
-                        else   //если ходят не в центр
-                        {
-                            if (pervhod)
-                            {
-                                hod1();   //ходим в центр
-                                pervhod = false;
-                            }
-                            else
-                            {
-                                ugol();
-                            }
-                        }
                     }
+                    currentMove = PlayerType.User;
                 }    //конец противоположного хода
-                nichia();
+                checkIfDraw();
             }
             else
             {
@@ -458,7 +185,7 @@ namespace ticTacToe
                         {
                             cells[i, j].type = CellType.PC;
                             rand = true;
-                            hdpc = false;
+                            currentMove = PlayerType.User;
                             paint();
                         }
                     }
@@ -471,18 +198,18 @@ namespace ticTacToe
             {
                 for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
-                    if (pc == 1)   //если компьютер начинал, то 1 - это крестики
+                    if (firstMove == PlayerType.PC)   //если компьютер начинал, то 1 - это крестики
                     {
                         if (cells[i, j].type == CellType.PC)
                         {
-                            cross.Draw(i, j);
+                            cross.Draw(new CellPointer(i, j));
                         }
                     }
                     else   //компьютер ходил вторым, 1 - нолики
                     {
                         if (cells[i, j].type == CellType.PC)
                         {
-                            nought.Draw(i, j);
+                            nought.Draw(new CellPointer(i, j));
                         }
                     }
                 }
@@ -642,7 +369,7 @@ namespace ticTacToe
                     if (cells[0, j].type == CellType.Empty)
                     {
                         cells[0, j].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                 }
@@ -654,7 +381,7 @@ namespace ticTacToe
                     if (cells[1, j].type == CellType.Empty)
                     {
                         cells[1, j].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                 }
@@ -666,7 +393,7 @@ namespace ticTacToe
                     if (cells[2, j].type == CellType.Empty)
                     {
                         cells[2, j].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
 
                     }
@@ -679,7 +406,7 @@ namespace ticTacToe
                     if (cells[i, 0].type == CellType.Empty)
                     {
                         cells[i, 0].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                 }
@@ -691,7 +418,7 @@ namespace ticTacToe
                     if (cells[i, 1].type == CellType.Empty)
                     {
                         cells[i, 1].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                 }
@@ -703,7 +430,7 @@ namespace ticTacToe
                     if (cells[i, 2].type == CellType.Empty)
                     {
                         cells[i, 2].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                 }
@@ -716,7 +443,7 @@ namespace ticTacToe
                     cells[1, 1].type = CellType.PC;
                 if (cells[2, 2].type == CellType.Empty)
                     cells[2, 2].type = CellType.PC;
-                hdpc = false;
+                currentMove = PlayerType.User;
                 paint();
             }
 
@@ -728,20 +455,20 @@ namespace ticTacToe
                     cells[1, 1].type = CellType.PC;
                 if (cells[0, 2].type == CellType.Empty)
                     cells[0, 2].type = CellType.PC;
-                hdpc = false;
+                currentMove = PlayerType.User;
                 paint();
 
             }       //конец защиты по 2 правилу
         }           // работает
 
-        private void krestiki()   //противоположный ход
+        private void oppositeMove()   //противоположный ход
         {
-            if (xlast == 0 && ylast == 0)  //если 0,0
+            if (lastMove.row == 0 && lastMove.col == 0)  //если 0,0
             {
                 if (cells[2, 2].type == CellType.Empty)
                 {
                     cells[2, 2].type = CellType.PC;
-                    hdpc = false;
+                    currentMove = PlayerType.User;
                     paint();
                 }
                 else
@@ -751,12 +478,12 @@ namespace ticTacToe
             }
             else
             {
-                if (xlast == 2 && ylast == 0)   //2.0
+                if (lastMove.row == 2 && lastMove.col == 0)   //2.0
                 {
                     if (cells[0, 2].type == CellType.Empty)
                     {
                         cells[0, 2].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                     else
@@ -766,12 +493,12 @@ namespace ticTacToe
                 }
                 else
                 {
-                    if (xlast == 0 && ylast == 2)   //0.2
+                    if (lastMove.row == 0 && lastMove.col == 2)   //0.2
                     {
                         if (cells[2, 0].type == CellType.Empty)
                         {
                             cells[2, 0].type = CellType.PC;
-                            hdpc = false;
+                            currentMove = PlayerType.User;
                             paint();
                         }
                         else
@@ -781,12 +508,12 @@ namespace ticTacToe
                     }
                     else
                     {
-                        if (xlast == 2 && ylast == 2)   //2.2
+                        if (lastMove.row == 2 && lastMove.col == 2)   //2.2
                         {
                             if (cells[0, 0].type == CellType.Empty)
                             {
                                 cells[0, 0].type = CellType.PC;
-                                hdpc = false;
+                                currentMove = PlayerType.User;
                                 paint();
                             }
                             else
@@ -796,12 +523,12 @@ namespace ticTacToe
                         }
                         else
                         {
-                            if (xlast == 0 && ylast == 1)   //0.1
+                            if (lastMove.row == 0 && lastMove.col == 1)   //0.1
                             {
                                 if (cells[2, 0].type == CellType.Empty)
                                 {
                                     cells[2, 0].type = CellType.PC;
-                                    hdpc = false;
+                                    currentMove = PlayerType.User;
                                     paint();
                                 }
                                 else
@@ -809,7 +536,7 @@ namespace ticTacToe
                                     if (cells[2, 2].type == CellType.Empty)
                                     {
                                         cells[2, 2].type = CellType.PC;
-                                        hdpc = false;
+                                        currentMove = PlayerType.User;
                                         paint();
                                     }
                                     else
@@ -820,12 +547,12 @@ namespace ticTacToe
                             }
                             else
                             {
-                                if (xlast == 1 && ylast == 0)   //1.0
+                                if (lastMove.row == 1 && lastMove.col == 0)   //1.0
                                 {
                                     if (cells[0, 2].type == CellType.Empty)
                                     {
                                         cells[0, 2].type = CellType.PC;
-                                        hdpc = false;
+                                        currentMove = PlayerType.User;
                                         paint();
                                     }
                                     else
@@ -833,7 +560,7 @@ namespace ticTacToe
                                         if (cells[2, 2].type == CellType.Empty)
                                         {
                                             cells[2, 2].type = CellType.PC;
-                                            hdpc = false;
+                                            currentMove = PlayerType.User;
                                             paint();
                                         }
                                         else
@@ -844,12 +571,12 @@ namespace ticTacToe
                                 }
                                 else
                                 {
-                                    if (xlast == 2 && ylast == 1)   //2.1
+                                    if (lastMove.row == 2 && lastMove.col == 1)   //2.1
                                     {
                                         if (cells[0, 0].type == CellType.Empty)
                                         {
                                             cells[0, 0].type = CellType.PC;
-                                            hdpc = false;
+                                            currentMove = PlayerType.User;
                                             paint();
                                         }
                                         else
@@ -857,7 +584,7 @@ namespace ticTacToe
                                             if (cells[0, 2].type == CellType.Empty)
                                             {
                                                 cells[0, 2].type = CellType.PC;
-                                                hdpc = false;
+                                                currentMove = PlayerType.User;
                                                 paint();
                                             }
                                             else
@@ -868,12 +595,12 @@ namespace ticTacToe
                                     }
                                     else
                                     {
-                                        if (xlast == 1 && ylast == 2)   //1.2
+                                        if (lastMove.row == 1 && lastMove.col == 2)   //1.2
                                         {
                                             if (cells[0, 0].type == CellType.Empty)
                                             {
                                                 cells[0, 0].type = CellType.PC;
-                                                hdpc = false;
+                                                currentMove = PlayerType.User;
                                                 paint();
                                             }
                                             else
@@ -881,7 +608,7 @@ namespace ticTacToe
                                                 if (cells[2, 0].type == CellType.Empty)
                                                 {
                                                     cells[2, 0].type = CellType.PC;
-                                                    hdpc = false;
+                                                    currentMove = PlayerType.User;
                                                     paint();
                                                 }
                                                 else
@@ -898,7 +625,7 @@ namespace ticTacToe
                 }
             }
         }   //работает
-        private void nichia()
+        private void checkIfDraw()
         {
             bool nich = true;   //если true - то ничья
             for (int i = 0; i < Settings.GRID_SIZE; i++)   //если находим 0, то получим false, то есть не ничья, можно еще ходить
@@ -929,7 +656,7 @@ namespace ticTacToe
         }     //работает
         private void newgame()
         {
-            qwe = false;
+            isGameStarted = false;
             label1.Text = "";
             panel1.Controls.Clear();
             panel1.Invalidate();
@@ -943,17 +670,12 @@ namespace ticTacToe
                 }
             }
 
-            first = true;
             dash.type = DashType.Empty;   // черта для вычеркивания выигрышной комбинации
-            x = -1;
-            y = -1;
-            xfir = -1; // первый ход юзера
-            yfir = -1; // когда он играет крестиками
-            xlast = -1;//последний
-            ylast = -1;// ход юзера
+            lastMove.row = -1;//последний
+            lastMove.col = -1;// ход юзера
             win = 0;//если 1- выиграл комп, 2-пользователь, 3- ничья
-            hdpc = false;//true - сейчас ход компьютера, false - ход пользователя
-            pc = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
+            currentMove = PlayerType.User;//true - сейчас ход компьютера, false - ход пользователя
+            firstMove = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
             computerFirstMove.Visible = true;
             playerFirstMove.Visible = true;
             computerFirstMove.Checked = false;
@@ -964,7 +686,7 @@ namespace ticTacToe
             if (cells[0, 0].type == CellType.Empty)
             {
                 cells[0, 0].type = CellType.PC;
-                hdpc = false;
+                currentMove = PlayerType.User;
                 paint();
             }
             else
@@ -972,7 +694,7 @@ namespace ticTacToe
                 if (cells[2, 0].type == CellType.Empty)
                 {
                     cells[2, 0].type = CellType.PC;
-                    hdpc = false;
+                    currentMove = PlayerType.User;
                     paint();
                 }
                 else
@@ -980,7 +702,7 @@ namespace ticTacToe
                     if (cells[0, 2].type == CellType.Empty)
                     {
                         cells[0, 2].type = CellType.PC;
-                        hdpc = false;
+                        currentMove = PlayerType.User;
                         paint();
                     }
                     else
@@ -988,7 +710,7 @@ namespace ticTacToe
                         if (cells[2, 2].type == CellType.Empty)
                         {
                             cells[2, 2].type = CellType.PC;
-                            hdpc = false;
+                            currentMove = PlayerType.User;
                             paint();
                         }
                         else
@@ -1129,6 +851,6 @@ namespace ticTacToe
                 random();
             }
         }  //нападение - работает
-        
+
     }
 }
