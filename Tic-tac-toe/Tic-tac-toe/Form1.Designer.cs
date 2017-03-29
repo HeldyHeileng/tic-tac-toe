@@ -28,23 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.startGameBtn = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.computerFirstMove = new System.Windows.Forms.RadioButton();
+            this.playerFirstMove = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
+            this.clearPanelBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // startGameBtn
             // 
-            this.button1.Location = new System.Drawing.Point(338, 93);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Start";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.startGameBtn.Location = new System.Drawing.Point(338, 93);
+            this.startGameBtn.Name = "startGameBtn";
+            this.startGameBtn.Size = new System.Drawing.Size(75, 23);
+            this.startGameBtn.TabIndex = 1;
+            this.startGameBtn.Text = "Start";
+            this.startGameBtn.UseVisualStyleBackColor = true;
+            this.startGameBtn.Click += new System.EventHandler(this.startGameBtn_Click);
             // 
             // panel1
             // 
@@ -56,29 +56,29 @@
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             this.panel1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseClick);
             // 
-            // radioButton1
+            // computerFirstMove
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(338, 23);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(70, 17);
-            this.radioButton1.TabIndex = 3;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Computer";
-            this.radioButton1.UseVisualStyleBackColor = true;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            this.computerFirstMove.AutoSize = true;
+            this.computerFirstMove.Location = new System.Drawing.Point(338, 23);
+            this.computerFirstMove.Name = "computerFirstMove";
+            this.computerFirstMove.Size = new System.Drawing.Size(70, 17);
+            this.computerFirstMove.TabIndex = 3;
+            this.computerFirstMove.TabStop = true;
+            this.computerFirstMove.Text = "Computer";
+            this.computerFirstMove.UseVisualStyleBackColor = true;
+            this.computerFirstMove.CheckedChanged += new System.EventHandler(this.computerFirstMove_CheckedChanged);
             // 
-            // radioButton2
+            // playerFirstMove
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(338, 55);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(47, 17);
-            this.radioButton2.TabIndex = 4;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "User";
-            this.radioButton2.UseVisualStyleBackColor = true;
-            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            this.playerFirstMove.AutoSize = true;
+            this.playerFirstMove.Location = new System.Drawing.Point(338, 55);
+            this.playerFirstMove.Name = "playerFirstMove";
+            this.playerFirstMove.Size = new System.Drawing.Size(47, 17);
+            this.playerFirstMove.TabIndex = 4;
+            this.playerFirstMove.TabStop = true;
+            this.playerFirstMove.Text = "User";
+            this.playerFirstMove.UseVisualStyleBackColor = true;
+            this.playerFirstMove.CheckedChanged += new System.EventHandler(this.playerFirstMove_CheckedChanged);
             // 
             // label1
             // 
@@ -88,27 +88,27 @@
             this.label1.Size = new System.Drawing.Size(116, 157);
             this.label1.TabIndex = 5;
             // 
-            // button2
+            // clearPanelBtn
             // 
-            this.button2.Location = new System.Drawing.Point(338, 291);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 6;
-            this.button2.Text = "Clear";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.clearPanelBtn.Location = new System.Drawing.Point(338, 291);
+            this.clearPanelBtn.Name = "clearPanelBtn";
+            this.clearPanelBtn.Size = new System.Drawing.Size(75, 23);
+            this.clearPanelBtn.TabIndex = 6;
+            this.clearPanelBtn.Text = "Clear";
+            this.clearPanelBtn.UseVisualStyleBackColor = true;
+            this.clearPanelBtn.Click += new System.EventHandler(this.clearPanelBtn_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(445, 325);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.clearPanelBtn);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.radioButton2);
-            this.Controls.Add(this.radioButton1);
+            this.Controls.Add(this.playerFirstMove);
+            this.Controls.Add(this.computerFirstMove);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.startGameBtn);
             this.Name = "Form1";
             this.Text = "Tic tac toe";
             this.ResumeLayout(false);
@@ -118,12 +118,12 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button startGameBtn;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton computerFirstMove;
+        private System.Windows.Forms.RadioButton playerFirstMove;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button clearPanelBtn;
     }
 }
 

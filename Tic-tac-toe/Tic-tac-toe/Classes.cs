@@ -20,7 +20,7 @@ namespace ticTacToe
         PC = 1,
         User = 2
     }
-
+        
     public class Cell
     {
         public CellType type { get; set; }

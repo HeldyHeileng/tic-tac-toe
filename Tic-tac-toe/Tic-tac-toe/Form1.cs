@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ExtensionMethods;
-using static ticTacToe.GameObjects;
 
 namespace ticTacToe
 {
@@ -18,7 +17,6 @@ namespace ticTacToe
                                      //центр, дальше по ситуации. значение false переправляет на путь "дальше по ситуации"
         public bool first = true;   //меняется на false сразу после первого хода юзера(играет крестиками), нужен для проверки, был ли
                                     // первый ход в центр или нет
-        Dash dash = new Dash();  // черта для вычеркивания выигрышной комбинации
         public int x = -1;
         public int y = -1;
         public int xfir = -1; // первый ход юзера
@@ -29,24 +27,29 @@ namespace ticTacToe
         public bool hdpc = false;//true - сейчас ход компьютера, false - ход пользователя
         public int pc = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
 
-        Grid grid = new Grid();
-        Cross cross = new Cross();
-        Nought nought = new Nought();
+        //Инициализируем классы объектов
+        Grid grid = new Grid(); // сетка
+        Dash dash = new Dash(); // черта для вычеркивания выигрышной комбинации
+        Cross cross = new Cross(); // крестик
+        Nought nought = new Nought(); // нолик
 
-        public Cell[,] cells = new Cell[Settings.GRID_SIZE, Settings.GRID_SIZE].Populate(() => new Cell());
+        //Инициализируем массив данных о текущем состоянии игры, все клетки пустые
+        public Cell[,] cells = new Cell[Settings.GRID_SIZE, Settings.GRID_SIZE].Populate(() => new Cell());        
+
         public Form1()
         {
             InitializeComponent();
 
-            GridSettings.panel = panel1.CreateGraphics();
-            GridSettings.gridBorderPen = new Pen(Color.Blue, 1);
-            GridSettings.gridPen = new Pen(Color.Blue, 2);
-            GridSettings.crossPen = new Pen(Color.Black, 3);
-            GridSettings.noughtPen = new Pen(Color.Black, 3);
-            GridSettings.dashPen = new Pen(Color.Blue, 6);
+            //Настраиваем внешний вид игры
+            DisplaySettings.panel = panel1.CreateGraphics();
+            DisplaySettings.gridBorderPen = new Pen(Color.Blue, 1);
+            DisplaySettings.gridPen = new Pen(Color.Blue, 2);
+            DisplaySettings.crossPen = new Pen(Color.Black, 3);
+            DisplaySettings.noughtPen = new Pen(Color.Black, 3);
+            DisplaySettings.dashPen = new Pen(Color.Blue, 6);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void startGameBtn_Click(object sender, EventArgs e)
         {
             qwe = true;
             if (pc == 0)  // pc равен 0 тогда, когда пользователь еще не выбрал кто будет ходить первым
@@ -59,15 +62,15 @@ namespace ticTacToe
                 {
                     hdpc = true;
                     hod1();
-                    radioButton1.Visible = false;
-                    radioButton2.Visible = false;
+                    computerFirstMove.Visible = false;
+                    playerFirstMove.Visible = false;
                 }
                 else     //первый ход пользователя
                 {
                     hdpc = false;
                     label1.Text = "Ваш ход!";
-                    radioButton1.Visible = false;
-                    radioButton2.Visible = false;
+                    computerFirstMove.Visible = false;
+                    playerFirstMove.Visible = false;
                 }
             }
         }    //работает
@@ -372,17 +375,17 @@ namespace ticTacToe
             }
         }   //рабоатет
 
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        private void computerFirstMove_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton1.Checked)
+            if (computerFirstMove.Checked)
             {
                 pc = 1;   //первый ход компьютера
             }
         }  //работает
 
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        private void playerFirstMove_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton2.Checked)
+            if (playerFirstMove.Checked)
             {
                 pc = 2;    //первый ход человека
             }
@@ -499,6 +502,7 @@ namespace ticTacToe
             }
         }           // работает
 
+        //Проверяем, можно ли выиграть на данном наборе ячеек
         private bool checkWinability(params Cell[] cellsToCheck)
         {
             var typeSum = cellsToCheck.Sum(x => (int)x.type);
@@ -619,6 +623,7 @@ namespace ticTacToe
             }
         }           // работает
 
+        //Проверяем, нужно ли защищаться на данном наборе ячеек
         private bool checkNeedProtection(params Cell[] cells)
         {
             var typeSum = cells.Sum(x => (int)x.type);
@@ -949,10 +954,10 @@ namespace ticTacToe
             win = 0;//если 1- выиграл комп, 2-пользователь, 3- ничья
             hdpc = false;//true - сейчас ход компьютера, false - ход пользователя
             pc = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
-            radioButton1.Visible = true;
-            radioButton2.Visible = true;
-            radioButton1.Checked = false;
-            radioButton2.Checked = false;
+            computerFirstMove.Visible = true;
+            playerFirstMove.Visible = true;
+            computerFirstMove.Checked = false;
+            playerFirstMove.Checked = false;
         }     //работает
         private void ugol()
         {
@@ -995,7 +1000,7 @@ namespace ticTacToe
             }
         }    //работает
 
-        private void button2_Click(object sender, EventArgs e)
+        private void clearPanelBtn_Click(object sender, EventArgs e)
         {
             newgame();
         }    //работает
@@ -1124,5 +1129,6 @@ namespace ticTacToe
                 random();
             }
         }  //нападение - работает
+        
     }
 }
