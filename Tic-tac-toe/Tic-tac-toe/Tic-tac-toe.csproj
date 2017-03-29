@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CellNotEmptyException.cs" />
     <Compile Include="Classes.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Form1.cs">

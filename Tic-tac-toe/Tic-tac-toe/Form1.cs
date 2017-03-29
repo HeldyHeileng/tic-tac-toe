@@ -44,7 +44,7 @@ namespace ticTacToe
         private void startGameBtn_Click(object sender, EventArgs e)
         {
             isGameStarted = true;
-             
+
             if (firstMove == PlayerType.None)  // pc равен 0 тогда, когда пользователь еще не выбрал кто будет ходить первым
             {
                 label1.Text = "Выберите игрока, который будет ходить первым!";
@@ -75,47 +75,59 @@ namespace ticTacToe
             grid.Draw();
         }
 
-        private void panel1_MouseClick(object sender, MouseEventArgs e)
+        private void d(int locationX, int locationY)
         {
-            if (firstMove == PlayerType.None)  //если пользователь сразу нажимает на доску, не выбрав кто будет ходить первым
+            label1.Text = "Ваш ход!";
+            if (currentMove == PlayerType.User)   //ход пользователя
             {
-                label1.Text = "Выберите игрока, который будет ходить первым!";
-            }
-            if (isGameStarted)
-            {
-                label1.Text = "Ваш ход!";
-                if (currentMove == PlayerType.User)   //ход пользователя
+                //Вычисляем на какую ячейку кликнули 
+                int row = locationX / 100;
+                int col = locationY / 100;
+
+                //Если ячейка пустая
+                if (cells[col, row].type == CellType.Empty)
                 {
-                    //Вычисляем на какую ячейку кликнули 
-                    int row = e.Location.X / 100;
-                    int col = e.Location.Y / 100;
+                    //Запоминаем ход
+                    lastMove.Move(col, row);
+                    cells[col, row].type = CellType.User;
 
-                    //Если ячейка пустая
-                    if (cells[col, row].type == CellType.Empty)
+                    //Отрисовываем
+                    if (firstMove == PlayerType.User)    //первый ход пользователя, значит он играет крестиками
                     {
-                        //Запоминаем ход
-                        lastMove.Move(col, row);
-                        cells[col, row].type = CellType.User;
-
-                        //Отрисовываем
-                        if (firstMove == PlayerType.User)    //первый ход пользователя, значит он играет крестиками
-                        {
-                            cross.Draw(lastMove);
-                        }
-                        else
-                        {
-                            nought.Draw(lastMove);
-                        }
-
-                        currentMove = PlayerType.PC;   //след ход компьютера
-                        PCMove();
+                        cross.Draw(lastMove);
                     }
                     else
                     {
-                        label1.Text = "Ячейка уже занята";
+                        nought.Draw(lastMove);
                     }
+
+                    currentMove = PlayerType.PC;   //след ход компьютера
+                    PCMove();
+                }
+                else
+                {
+                    throw new CellNotEmptyException();
                 }
             }
+        }
+
+        private void panel1_MouseClick(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                if (firstMove == PlayerType.None)  //если пользователь сразу нажимает на доску, не выбрав кто будет ходить первым
+                {
+                    label1.Text = "Выберите игрока, который будет ходить первым!";
+                }
+                if (isGameStarted)
+                {
+                    d(e.Location.X, e.Location.Y);
+                }
+            }
+            catch (Exception x)
+            {
+                label1.Text = "Ячейка уже занята";
+            }        
         }
 
         private void computerFirstMove_CheckedChanged(object sender, EventArgs e)
@@ -124,7 +136,7 @@ namespace ticTacToe
             {
                 firstMove = PlayerType.PC;   //первый ход компьютера
             }
-        } 
+        }
 
         private void playerFirstMove_CheckedChanged(object sender, EventArgs e)
         {
@@ -132,7 +144,7 @@ namespace ticTacToe
             {
                 firstMove = PlayerType.User;    //первый ход человека
             }
-        } 
+        }
 
         private void PCMoveToCenter()
         {
