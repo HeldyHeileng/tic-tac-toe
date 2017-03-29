@@ -1,4 +1,4 @@
-﻿namespace креститки_нолики
+﻿namespace ticTacToe
 {
     partial class Form1
     {
