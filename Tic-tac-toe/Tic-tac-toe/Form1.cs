@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ExtensionMethods;
+using static ticTacToe.GameObjects;
 
 namespace ticTacToe
 {
@@ -17,7 +18,7 @@ namespace ticTacToe
                                      //центр, дальше по ситуации. значение false переправляет на путь "дальше по ситуации"
         public bool first = true;   //меняется на false сразу после первого хода юзера(играет крестиками), нужен для проверки, был ли
                                     // первый ход в центр или нет
-        public int cherta = 0;   // черта для вычеркивания выигрышной комбинации
+        Dash dash = new Dash();  // черта для вычеркивания выигрышной комбинации
         public int x = -1;
         public int y = -1;
         public int xfir = -1; // первый ход юзера
@@ -28,10 +29,21 @@ namespace ticTacToe
         public bool hdpc = false;//true - сейчас ход компьютера, false - ход пользователя
         public int pc = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
 
-        public Cell[,] cells = new Cell[3, 3].Populate(() => new Cell());
+        Grid grid = new Grid();
+        Cross cross = new Cross();
+        Nought nought = new Nought();
+
+        public Cell[,] cells = new Cell[Settings.GRID_SIZE, Settings.GRID_SIZE].Populate(() => new Cell());
         public Form1()
         {
             InitializeComponent();
+
+            GridSettings.panel = panel1.CreateGraphics();
+            GridSettings.gridBorderPen = new Pen(Color.Blue, 1);
+            GridSettings.gridPen = new Pen(Color.Blue, 2);
+            GridSettings.crossPen = new Pen(Color.Black, 3);
+            GridSettings.noughtPen = new Pen(Color.Black, 3);
+            GridSettings.dashPen = new Pen(Color.Blue, 6);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -62,17 +74,7 @@ namespace ticTacToe
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
-            Graphics gPanel = panel1.CreateGraphics();
-            Pen p = new Pen(Color.Blue, 1);
-            Pen p1 = new Pen(Color.Blue, 2);
-            gPanel.DrawLine(p, new Point(0, 0), new Point(300, 0));
-            gPanel.DrawLine(p, new Point(300, 0), new Point(300, 300));
-            gPanel.DrawLine(p, new Point(0, 0), new Point(0, 300));
-            gPanel.DrawLine(p, new Point(0, 300), new Point(300, 300));
-            gPanel.DrawLine(p1, new Point(100, 0), new Point(100, 300));
-            gPanel.DrawLine(p1, new Point(200, 0), new Point(200, 300));
-            gPanel.DrawLine(p1, new Point(0, 100), new Point(300, 100));
-            gPanel.DrawLine(p1, new Point(0, 200), new Point(300, 200));
+            grid.Draw();
         }  //работает
 
         private void panel1_MouseClick(object sender, MouseEventArgs e)
@@ -94,10 +96,7 @@ namespace ticTacToe
 
                                 if (cells[0, 0].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 2, 2, 98, 98);
-                                    gPanel.DrawLine(p, 98, 2, 2, 98);
+                                    cross.Draw(0, 0);
                                     cells[0, 0].type = CellType.User;
                                     xlast = 0;
                                     ylast = 0;
@@ -113,10 +112,7 @@ namespace ticTacToe
                             {
                                 if (cells[1, 0].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 102, 2, 198, 98);
-                                    gPanel.DrawLine(p, 198, 2, 102, 98);
+                                    cross.Draw(1, 0);
                                     cells[1, 0].type = CellType.User;
                                     xlast = 1;
                                     ylast = 0;
@@ -131,10 +127,7 @@ namespace ticTacToe
                             {
                                 if (cells[2, 0].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 202, 2, 298, 98);
-                                    gPanel.DrawLine(p, 298, 2, 202, 98);
+                                    cross.Draw(2, 0);
                                     cells[2, 0].type = CellType.User;
                                     xlast = 2;
                                     ylast = 0;
@@ -149,10 +142,7 @@ namespace ticTacToe
                             {
                                 if (cells[0, 1].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 2, 102, 98, 198);
-                                    gPanel.DrawLine(p, 98, 102, 2, 198);
+                                    cross.Draw(0, 1);
                                     cells[0, 1].type = CellType.User;
                                     xlast = 0;
                                     ylast = 1;
@@ -167,10 +157,7 @@ namespace ticTacToe
                             {
                                 if (cells[1, 1].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 102, 102, 198, 198);
-                                    gPanel.DrawLine(p, 198, 102, 102, 198);
+                                    cross.Draw(1, 1);
                                     cells[1, 1].type = CellType.User;
                                     xlast = 1;
                                     ylast = 1;
@@ -190,10 +177,7 @@ namespace ticTacToe
                             {
                                 if (cells[2, 1].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 202, 102, 298, 198);
-                                    gPanel.DrawLine(p, 298, 102, 202, 198);
+                                    cross.Draw(2, 1);
                                     cells[2, 1].type = CellType.User;
                                     xlast = 2;
                                     ylast = 1;
@@ -208,10 +192,7 @@ namespace ticTacToe
                             {
                                 if (cells[0, 2].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 2, 202, 98, 298);
-                                    gPanel.DrawLine(p, 98, 202, 2, 298);
+                                    cross.Draw(0, 2);
                                     cells[0, 2].type = CellType.User;
                                     xlast = 0;
                                     ylast = 2;
@@ -226,10 +207,7 @@ namespace ticTacToe
                             {
                                 if (cells[1, 2].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 102, 202, 198, 298);
-                                    gPanel.DrawLine(p, 198, 202, 102, 298);
+                                    cross.Draw(1, 2);
                                     cells[1, 2].type = CellType.User;
                                     xlast = 1;
                                     ylast = 2;
@@ -244,10 +222,7 @@ namespace ticTacToe
                             {
                                 if (cells[2, 2].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawLine(p, 202, 202, 298, 298);
-                                    gPanel.DrawLine(p, 298, 202, 202, 298);
+                                    cross.Draw(2, 2);
                                     cells[2, 2].type = CellType.User;
                                     xlast = 2;
                                     ylast = 2;
@@ -266,9 +241,7 @@ namespace ticTacToe
 
                                 if (cells[0, 0].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 4, 4, 92, 92);
+                                    nought.Draw(0, 0);
                                     cells[0, 0].type = CellType.User;
                                     xlast = 0;
                                     ylast = 0;
@@ -283,9 +256,7 @@ namespace ticTacToe
                             {
                                 if (cells[1, 0].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 104, 4, 92, 92);
+                                    nought.Draw(1, 0);
                                     cells[1, 0].type = CellType.User;
                                     xlast = 1;
                                     ylast = 0;
@@ -299,9 +270,7 @@ namespace ticTacToe
                             {
                                 if (cells[2, 0].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 204, 4, 92, 92);
+                                    nought.Draw(2, 0);
                                     cells[2, 0].type = CellType.User;
                                     xlast = 2;
                                     ylast = 0;
@@ -315,9 +284,7 @@ namespace ticTacToe
                             {
                                 if (cells[0, 1].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 4, 104, 92, 92);
+                                    nought.Draw(0, 1);
                                     cells[0, 1].type = CellType.User;
                                     xlast = 0;
                                     ylast = 1;
@@ -331,9 +298,7 @@ namespace ticTacToe
                             {
                                 if (cells[1, 1].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 104, 104, 92, 92);
+                                    nought.Draw(1, 1);
                                     cells[1, 1].type = CellType.User;
                                     xlast = 1;
                                     ylast = 1;
@@ -347,9 +312,7 @@ namespace ticTacToe
                             {
                                 if (cells[2, 1].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 204, 104, 92, 92);
+                                    nought.Draw(2, 1);
                                     cells[2, 1].type = CellType.User;
                                     xlast = 2;
                                     ylast = 1;
@@ -363,9 +326,7 @@ namespace ticTacToe
                             {
                                 if (cells[0, 2].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 4, 204, 92, 92);
+                                    nought.Draw(0, 2);
                                     cells[0, 2].type = CellType.User;
                                     xlast = 0;
                                     ylast = 2;
@@ -379,9 +340,7 @@ namespace ticTacToe
                             {
                                 if (cells[1, 2].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 104, 204, 92, 92);
+                                    nought.Draw(1, 2);
                                     cells[1, 2].type = CellType.User;
                                     xlast = 1;
                                     ylast = 2;
@@ -395,9 +354,7 @@ namespace ticTacToe
                             {
                                 if (cells[2, 2].type == CellType.Empty)
                                 {
-                                    Graphics gPanel = panel1.CreateGraphics();
-                                    Pen p = new Pen(Color.Black, 3);
-                                    gPanel.DrawEllipse(p, 204, 204, 92, 92);
+                                    nought.Draw(2, 2);
                                     cells[2, 2].type = CellType.User;
                                     xlast = 2;
                                     ylast = 2;
@@ -488,9 +445,9 @@ namespace ticTacToe
         private void random()   //заполняем любую пустую клетку, для компьютера
         {
             bool rand = false;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < Settings.GRID_SIZE; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (rand == false)
                     {
@@ -507,27 +464,22 @@ namespace ticTacToe
         }   // работает
         private void paint()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < Settings.GRID_SIZE; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (pc == 1)   //если компьютер начинал, то 1 - это крестики
                     {
                         if (cells[i, j].type == CellType.PC)
                         {
-                            Graphics gPanel = panel1.CreateGraphics();
-                            Pen p = new Pen(Color.Black, 3);
-                            gPanel.DrawLine(p, 2 + i * 100, 2 + j * 100, 98 + i * 100, 98 + j * 100);
-                            gPanel.DrawLine(p, 98 + i * 100, 2 + j * 100, 2 + i * 100, 98 + j * 100);
+                            cross.Draw(i, j);
                         }
                     }
                     else   //компьютер ходил вторым, 1 - нолики
                     {
                         if (cells[i, j].type == CellType.PC)
                         {
-                            Graphics gPanel = panel1.CreateGraphics();
-                            Pen p = new Pen(Color.Black, 3);
-                            gPanel.DrawEllipse(p, 4 + i * 100, 4 + j * 100, 92, 92);
+                            nought.Draw(i, j);
                         }
                     }
                 }
@@ -535,20 +487,9 @@ namespace ticTacToe
         }            //работает
         private void winner()
         {
-            Graphics gPanel = panel1.CreateGraphics();
-            Pen p = new Pen(Color.Blue, 6);
-            switch (cherta)
-            {
-                case 1: gPanel.DrawLine(p, 2, 50, 298, 50); break;
-                case 2: gPanel.DrawLine(p, 2, 150, 298, 150); break;
-                case 3: gPanel.DrawLine(p, 2, 250, 298, 250); break;
-                case 4: gPanel.DrawLine(p, 50, 2, 50, 298); break;
-                case 5: gPanel.DrawLine(p, 150, 2, 150, 298); break;
-                case 6: gPanel.DrawLine(p, 250, 2, 250, 298); break;
-                case 7: gPanel.DrawLine(p, 2, 2, 298, 298); break;
-                case 8: gPanel.DrawLine(p, 298, 2, 2, 298); break;
-            }
-            if (cherta > 0)
+            dash.Draw();
+
+            if (dash.type != DashType.Empty)
             {
                 label1.Text = "Компьютер выиграл!";
             }
@@ -571,7 +512,7 @@ namespace ticTacToe
             //НАЧИНАЕТСЯ НАПАДЕНИЕ(ПОПЫТКА ВЫИГРАТЬ, ЕСЛИ ЕСТЬ ВОЗМОЖНОСТЬ)
             if (checkWinability(cells[0, 0], cells[0, 1], cells[0, 2])) //1-4-7  - нападение
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[0, j].type == CellType.Empty)
                     {
@@ -580,11 +521,11 @@ namespace ticTacToe
                 }
                 win = 1;
                 paint();
-                cherta = 4;
+                dash.type = DashType.HorizontalTop;
             }
             else if (checkWinability(cells[1, 0], cells[1, 1], cells[1, 2])) //2-5-8  - нападение
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[1, j].type == CellType.Empty)
                     {
@@ -593,12 +534,12 @@ namespace ticTacToe
                 }
                 win = 1;
                 paint();
-                cherta = 5;
+                dash.type = DashType.HorizontalMiddle;
             }
             else if (checkWinability(cells[2, 0], cells[2, 1], cells[2, 2])) //3-6-9  - нападение
             {
 
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[2, j].type == CellType.Empty)
                     {
@@ -607,12 +548,12 @@ namespace ticTacToe
                 }
                 win = 1;
                 paint();
-                cherta = 6;
+                dash.type = DashType.HorizontalBottom;
             }
             else if (checkWinability(cells[0, 0], cells[1, 0], cells[2, 0])) //1-2-3  -нападение
             {
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 0].type == CellType.Empty)
                     {
@@ -621,12 +562,12 @@ namespace ticTacToe
                 }
                 win = 1;
                 paint();
-                cherta = 1;
+                dash.type = DashType.VerticalLeft;
             }
             else if (checkWinability(cells[0, 1], cells[1, 1], cells[2, 1])) //4-5-6  - нападение
             {
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 1].type == CellType.Empty)
                     {
@@ -635,12 +576,12 @@ namespace ticTacToe
                 }
                 win = 1;
                 paint();
-                cherta = 2;
+                dash.type = DashType.VerticalMiddle;
             }
             else if (checkWinability(cells[0, 2], cells[1, 2], cells[2, 2])) //7-8-9  - нападение
             {
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 2].type == CellType.Empty)
                     {
@@ -649,7 +590,7 @@ namespace ticTacToe
                 }
                 win = 1;
                 paint();
-                cherta = 3;
+                dash.type = DashType.VerticalRight;
             }
             else if (checkWinability(cells[0, 0], cells[1, 1], cells[2, 2])) //1-5-9  - нападение
             {
@@ -661,7 +602,7 @@ namespace ticTacToe
                     cells[2, 2].type = CellType.PC;
                 win = 1;
                 paint();
-                cherta = 7;
+                dash.type = DashType.DiagonalLeftTop;
 
             }
             else if (checkWinability(cells[2, 0], cells[1, 1], cells[0, 2])) //3-5-7  - нападение
@@ -674,7 +615,7 @@ namespace ticTacToe
                     cells[0, 2].type = CellType.PC;
                 win = 1;
                 paint();
-                cherta = 8;
+                dash.type = DashType.DiagonalLeftBottom;
             }
         }           // работает
 
@@ -691,7 +632,7 @@ namespace ticTacToe
             // защита
             if (checkNeedProtection(cells[0, 0], cells[0, 1], cells[0, 2])) //1-4-7  - защита
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[0, j].type == CellType.Empty)
                     {
@@ -703,7 +644,7 @@ namespace ticTacToe
             }
             else if (checkNeedProtection(cells[1, 0], cells[1, 1], cells[1, 2])) //2-5-8  - защита
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[1, j].type == CellType.Empty)
                     {
@@ -715,7 +656,7 @@ namespace ticTacToe
             }
             else if (checkNeedProtection(cells[2, 0], cells[2, 1], cells[2, 2])) //3-6-9  - защита
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[2, j].type == CellType.Empty)
                     {
@@ -728,7 +669,7 @@ namespace ticTacToe
             }
             else if (checkNeedProtection(cells[0, 0], cells[1, 0], cells[2, 0])) //1-2-3  - защита
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 0].type == CellType.Empty)
                     {
@@ -740,7 +681,7 @@ namespace ticTacToe
             }
             else if (checkNeedProtection(cells[0, 1], cells[1, 1], cells[2, 1])) //4-5-6  - защита
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 1].type == CellType.Empty)
                     {
@@ -752,7 +693,7 @@ namespace ticTacToe
             }
             else if (checkNeedProtection(cells[0, 2], cells[1, 2], cells[2, 2])) //7-8-9  - защита
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 2].type == CellType.Empty)
                     {
@@ -955,9 +896,9 @@ namespace ticTacToe
         private void nichia()
         {
             bool nich = true;   //если true - то ничья
-            for (int i = 0; i < 3; i++)   //если находим 0, то получим false, то есть не ничья, можно еще ходить
+            for (int i = 0; i < Settings.GRID_SIZE; i++)   //если находим 0, то получим false, то есть не ничья, можно еще ходить
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (nich)
                     {
@@ -972,9 +913,9 @@ namespace ticTacToe
             {
                 label1.Text = "Ничья";
                 win = 3;
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
-                    for (int j = 0; j < 3; j++)
+                    for (int j = 0; j < Settings.GRID_SIZE; j++)
                     {
                         cells[i, j].type = CellType.Empty;
                     }
@@ -985,28 +926,20 @@ namespace ticTacToe
         {
             qwe = false;
             label1.Text = "";
-            Graphics gPanel = panel1.CreateGraphics();
             panel1.Controls.Clear();
             panel1.Invalidate();
-            Pen p = new Pen(Color.Blue, 1);
-            Pen p1 = new Pen(Color.Blue, 2);
-            gPanel.DrawLine(p, new Point(0, 0), new Point(300, 0));
-            gPanel.DrawLine(p, new Point(300, 0), new Point(300, 300));
-            gPanel.DrawLine(p, new Point(0, 0), new Point(0, 300));
-            gPanel.DrawLine(p, new Point(0, 300), new Point(300, 300));
-            gPanel.DrawLine(p1, new Point(100, 0), new Point(100, 300));
-            gPanel.DrawLine(p1, new Point(200, 0), new Point(200, 300));
-            gPanel.DrawLine(p1, new Point(0, 100), new Point(300, 100));
-            gPanel.DrawLine(p1, new Point(0, 200), new Point(300, 200));
-            for (int i = 0; i < 3; i++)
+            grid.Draw();
+
+            for (int i = 0; i < Settings.GRID_SIZE; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     cells[i, j].type = CellType.Empty;
                 }
             }
+
             first = true;
-            cherta = 0;   // черта для вычеркивания выигрышной комбинации
+            dash.type = DashType.Empty;   // черта для вычеркивания выигрышной комбинации
             x = -1;
             y = -1;
             xfir = -1; // первый ход юзера
@@ -1075,7 +1008,7 @@ namespace ticTacToe
         {
             if (checkIfAttack(cells[0, 0], cells[0, 1], cells[0, 2])) //1-4-7  - нападение
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[0, j].type == CellType.Empty)
                     {
@@ -1087,7 +1020,7 @@ namespace ticTacToe
             else if (checkIfAttack(cells[1, 0], cells[1, 1], cells[1, 2]))   //2-5-8  - нападение
             {
 
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[1, j].type == CellType.Empty)
                     {
@@ -1099,7 +1032,7 @@ namespace ticTacToe
             else if (checkIfAttack(cells[2, 0], cells[2, 1], cells[2, 2]))  //3-6-9  - нападение
             {
 
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < Settings.GRID_SIZE; j++)
                 {
                     if (cells[2, j].type == CellType.Empty)
                     {
@@ -1111,7 +1044,7 @@ namespace ticTacToe
             else if (checkIfAttack(cells[0, 0], cells[1, 0], cells[2, 0])) //1-2-3  -нападение
             {
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 0].type == CellType.Empty)
                     {
@@ -1123,7 +1056,7 @@ namespace ticTacToe
             else if (checkIfAttack(cells[0, 1], cells[1, 1], cells[2, 1])) //4-5-6  - нападение
             {
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 1].type == CellType.Empty)
                     {
@@ -1135,7 +1068,7 @@ namespace ticTacToe
             else if (checkIfAttack(cells[0, 2], cells[1, 2], cells[2, 2]))  //7-8-9  - нападение
             {
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     if (cells[i, 2].type == CellType.Empty)
                     {
