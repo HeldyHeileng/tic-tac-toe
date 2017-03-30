@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace ticTacToe
+namespace Tic_tac_toe
 {
     public static class Settings
     {
@@ -54,6 +54,19 @@ namespace ticTacToe
             this.col = col;
             this.row = row;
         }
+    }
+
+    public class GameInfo
+    {
+        public string UserName { get; set; }
+
+        public string FirstMove { get; set; }
+
+        public int MoveCount { get; set; }
+
+        public string Winner { get; set; }
+
+        public DateTime CreateDate { get; set; }
     }
 
 }

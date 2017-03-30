@@ -8,14 +8,17 @@ using System.Text;
 using System.Windows.Forms;
 using ExtensionMethods;
 using System.Threading;
+using Newtonsoft.Json;
+using System.IO;
 
-namespace ticTacToe
+namespace Tic_tac_toe
 {
     public partial class Form1 : Form
     {
         public bool isGameStarted = false;
         public CellPointer lastMove = new CellPointer(-1, -1); //последний ход 
-        public int win = 0;//если 1- выиграл комп, 2-пользователь, 3- ничья
+        public PlayerType win = PlayerType.None;//если 1- выиграл комп, 2-пользователь, 3- ничья
+        public int moveCounter = 0; //счетчик ходов
         public PlayerType currentMove = PlayerType.None;//true - сейчас ход компьютера, false - ход пользователя
         public PlayerType firstMove = PlayerType.None;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
 
@@ -39,21 +42,27 @@ namespace ticTacToe
             DisplaySettings.crossPen = new Pen(Color.Black, 3);
             DisplaySettings.noughtPen = new Pen(Color.Black, 3);
             DisplaySettings.dashPen = new Pen(Color.Blue, 6);
+            GetGameInfo();
         }
 
         private void startGameBtn_Click(object sender, EventArgs e)
         {
-            isGameStarted = true;
-
             if (firstMove == PlayerType.None)  // pc равен 0 тогда, когда пользователь еще не выбрал кто будет ходить первым
             {
                 label1.Text = "Выберите игрока, который будет ходить первым!";
             }
+            else if (String.IsNullOrWhiteSpace(userNameTextBox.Text))
+            {
+                label1.Text = "Введите имя игрока!";
+            }
             else
             {
+                isGameStarted = true;
                 //скрываем выбор первого ходящего
                 computerFirstMove.Visible = false;
                 playerFirstMove.Visible = false;
+                userNameTextBox.ReadOnly = true;
+                startGameBtn.Enabled = false;
 
                 if (firstMove == PlayerType.PC) //первый ход компа
                 {
@@ -90,6 +99,7 @@ namespace ticTacToe
                     //Запоминаем ход
                     lastMove.Move(col, row);
                     cells[col, row].type = CellType.User;
+                    moveCounter++;
 
                     //Отрисовываем
                     if (firstMove == PlayerType.User)    //первый ход пользователя, значит он играет крестиками
@@ -127,7 +137,7 @@ namespace ticTacToe
             catch (Exception x)
             {
                 label1.Text = "Ячейка уже занята";
-            }        
+            }
         }
 
         private void computerFirstMove_CheckedChanged(object sender, EventArgs e)
@@ -150,10 +160,14 @@ namespace ticTacToe
         {
             cells[1, 1].type = CellType.PC;   //компьютер первым ходом всегда ходит в центр(если есть возможность), независимо от того какими он играет
             paint();
+            moveCounter++;
         }
         private void PCMove()
         {
-            checkIfDraw();    //есть ли свободное поле
+            if (checkIfDraw())  //есть ли свободное поле
+            {
+                return; //если ничья то выходим из функции
+            }
             tryToWin();    //1 правило
             if (win == 0)
             {
@@ -176,6 +190,7 @@ namespace ticTacToe
                         }
                     }
                     currentMove = PlayerType.User;
+                    moveCounter++;
                 }    //конец противоположного хода
                 checkIfDraw();
             }
@@ -230,7 +245,7 @@ namespace ticTacToe
         private void winner()
         {
             dash.Draw();
-
+            isGameStarted = false;
             if (dash.type != DashType.Empty)
             {
                 label1.Text = "Компьютер выиграл!";
@@ -262,7 +277,7 @@ namespace ticTacToe
                         cells[0, j].type = CellType.PC;
                     }
                 }
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.HorizontalTop;
             }
@@ -275,7 +290,7 @@ namespace ticTacToe
                         cells[1, j].type = CellType.PC;
                     }
                 }
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.HorizontalMiddle;
             }
@@ -289,7 +304,7 @@ namespace ticTacToe
                         cells[2, j].type = CellType.PC;
                     }
                 }
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.HorizontalBottom;
             }
@@ -303,7 +318,7 @@ namespace ticTacToe
                         cells[i, 0].type = CellType.PC;
                     }
                 }
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.VerticalLeft;
             }
@@ -317,7 +332,7 @@ namespace ticTacToe
                         cells[i, 1].type = CellType.PC;
                     }
                 }
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.VerticalMiddle;
             }
@@ -331,7 +346,7 @@ namespace ticTacToe
                         cells[i, 2].type = CellType.PC;
                     }
                 }
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.VerticalRight;
             }
@@ -343,7 +358,7 @@ namespace ticTacToe
                     cells[1, 1].type = CellType.PC;
                 if (cells[2, 2].type == CellType.Empty)
                     cells[2, 2].type = CellType.PC;
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.DiagonalLeftTop;
 
@@ -356,7 +371,7 @@ namespace ticTacToe
                     cells[1, 1].type = CellType.PC;
                 if (cells[0, 2].type == CellType.Empty)
                     cells[0, 2].type = CellType.PC;
-                win = 1;
+                win = PlayerType.PC;
                 paint();
                 dash.type = DashType.DiagonalLeftBottom;
             }
@@ -637,7 +652,7 @@ namespace ticTacToe
                 }
             }
         }   //работает
-        private void checkIfDraw()
+        private bool checkIfDraw()
         {
             bool nich = true;   //если true - то ничья
             for (int i = 0; i < Settings.GRID_SIZE; i++)   //если находим 0, то получим false, то есть не ничья, можно еще ходить
@@ -655,8 +670,9 @@ namespace ticTacToe
             }
             if (nich)
             {
+                isGameStarted = false;
                 label1.Text = "Ничья";
-                win = 3;
+                win = PlayerType.None;
                 for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     for (int j = 0; j < Settings.GRID_SIZE; j++)
@@ -665,10 +681,11 @@ namespace ticTacToe
                     }
                 }
             }
+            return nich;
         }     //работает
         private void newgame()
         {
-            isGameStarted = false;
+            SaveGameInfo();
             label1.Text = "";
             panel1.Controls.Clear();
             panel1.Invalidate();
@@ -686,12 +703,15 @@ namespace ticTacToe
             lastMove.row = -1;//последний
             lastMove.col = -1;// ход юзера
             win = 0;//если 1- выиграл комп, 2-пользователь, 3- ничья
+            moveCounter = 0;
             currentMove = PlayerType.User;//true - сейчас ход компьютера, false - ход пользователя
             firstMove = 0;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
             computerFirstMove.Visible = true;
             playerFirstMove.Visible = true;
+            userNameTextBox.ReadOnly = false;
             computerFirstMove.Checked = false;
             playerFirstMove.Checked = false;
+            startGameBtn.Enabled = true;
         }     //работает
         private void ugol()
         {
@@ -864,5 +884,55 @@ namespace ticTacToe
             }
         }  //нападение - работает
 
+        public void SaveGameInfo()
+        {
+            var gameInfo = new GameInfo()
+            {
+                UserName = userNameTextBox.Text,
+                FirstMove = firstMove.ToString(),
+                MoveCount = moveCounter,
+                Winner = win.ToString(),
+                CreateDate = DateTime.Now
+            };
+
+            var filePath = @"c:\gameInfo.json";
+
+            // Читаем что есть в файле
+            var jsonData = System.IO.File.ReadAllText(filePath);
+            // Десериализуем информацию в лист 
+            var gameInfoList = JsonConvert.DeserializeObject<List<GameInfo>>(jsonData)
+                                  ?? new List<GameInfo>();
+
+            // Добавляем в список нашу информацию
+            gameInfoList.Add(gameInfo);
+
+            // Переписываем файл
+            jsonData = JsonConvert.SerializeObject(gameInfoList);
+            System.IO.File.WriteAllText(filePath, jsonData);
+        }
+
+        public List<GameInfo> GetGameInfo()
+        {
+            string info = System.IO.File.ReadAllText(@"c:\gameInfo.json");
+            try
+            {
+                return JsonConvert.DeserializeObject<List<GameInfo>>(info); //Берем информацию 
+            }
+            catch
+            {
+                label1.Text = "При попытке прочитать файл статистики произошла ошибка";
+            }
+            return null;
+        }
+
+        private void statsButton_Click(object sender, EventArgs e)
+        {
+            var gameInfoList = GetGameInfo();
+
+            if (gameInfoList != null) {
+                StatsForm statsForm = new StatsForm(gameInfoList);
+                statsForm.Show();
+            }
+        }
     }
 }

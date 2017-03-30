@@ -1,4 +1,4 @@
-﻿namespace ticTacToe
+﻿namespace Tic_tac_toe
 {
     partial class Form1
     {
@@ -31,14 +31,17 @@
             this.startGameBtn = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.computerFirstMove = new System.Windows.Forms.RadioButton();
-            this.playerFirstMove = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
             this.clearPanelBtn = new System.Windows.Forms.Button();
+            this.userNameTextBox = new System.Windows.Forms.TextBox();
+            this.playerFirstMove = new System.Windows.Forms.RadioButton();
+            this.label2 = new System.Windows.Forms.Label();
+            this.statsButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // startGameBtn
             // 
-            this.startGameBtn.Location = new System.Drawing.Point(338, 93);
+            this.startGameBtn.Location = new System.Drawing.Point(338, 98);
             this.startGameBtn.Name = "startGameBtn";
             this.startGameBtn.Size = new System.Drawing.Size(75, 23);
             this.startGameBtn.TabIndex = 1;
@@ -59,7 +62,7 @@
             // computerFirstMove
             // 
             this.computerFirstMove.AutoSize = true;
-            this.computerFirstMove.Location = new System.Drawing.Point(338, 23);
+            this.computerFirstMove.Location = new System.Drawing.Point(338, 51);
             this.computerFirstMove.Name = "computerFirstMove";
             this.computerFirstMove.Size = new System.Drawing.Size(70, 17);
             this.computerFirstMove.TabIndex = 3;
@@ -67,18 +70,6 @@
             this.computerFirstMove.Text = "Computer";
             this.computerFirstMove.UseVisualStyleBackColor = true;
             this.computerFirstMove.CheckedChanged += new System.EventHandler(this.computerFirstMove_CheckedChanged);
-            // 
-            // playerFirstMove
-            // 
-            this.playerFirstMove.AutoSize = true;
-            this.playerFirstMove.Location = new System.Drawing.Point(338, 55);
-            this.playerFirstMove.Name = "playerFirstMove";
-            this.playerFirstMove.Size = new System.Drawing.Size(47, 17);
-            this.playerFirstMove.TabIndex = 4;
-            this.playerFirstMove.TabStop = true;
-            this.playerFirstMove.Text = "User";
-            this.playerFirstMove.UseVisualStyleBackColor = true;
-            this.playerFirstMove.CheckedChanged += new System.EventHandler(this.playerFirstMove_CheckedChanged);
             // 
             // label1
             // 
@@ -90,7 +81,7 @@
             // 
             // clearPanelBtn
             // 
-            this.clearPanelBtn.Location = new System.Drawing.Point(338, 291);
+            this.clearPanelBtn.Location = new System.Drawing.Point(338, 269);
             this.clearPanelBtn.Name = "clearPanelBtn";
             this.clearPanelBtn.Size = new System.Drawing.Size(75, 23);
             this.clearPanelBtn.TabIndex = 6;
@@ -98,11 +89,52 @@
             this.clearPanelBtn.UseVisualStyleBackColor = true;
             this.clearPanelBtn.Click += new System.EventHandler(this.clearPanelBtn_Click);
             // 
+            // userNameTextBox
+            // 
+            this.userNameTextBox.Location = new System.Drawing.Point(337, 24);
+            this.userNameTextBox.Name = "userNameTextBox";
+            this.userNameTextBox.Size = new System.Drawing.Size(89, 20);
+            this.userNameTextBox.TabIndex = 7;
+            // 
+            // playerFirstMove
+            // 
+            this.playerFirstMove.AutoSize = true;
+            this.playerFirstMove.Location = new System.Drawing.Point(338, 70);
+            this.playerFirstMove.Name = "playerFirstMove";
+            this.playerFirstMove.Size = new System.Drawing.Size(47, 17);
+            this.playerFirstMove.TabIndex = 4;
+            this.playerFirstMove.TabStop = true;
+            this.playerFirstMove.Text = "User";
+            this.playerFirstMove.UseVisualStyleBackColor = true;
+            this.playerFirstMove.CheckedChanged += new System.EventHandler(this.playerFirstMove_CheckedChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(337, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(60, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "User Name";
+            // 
+            // statsButton
+            // 
+            this.statsButton.Location = new System.Drawing.Point(338, 295);
+            this.statsButton.Name = "statsButton";
+            this.statsButton.Size = new System.Drawing.Size(75, 23);
+            this.statsButton.TabIndex = 9;
+            this.statsButton.Text = "Show stats";
+            this.statsButton.UseVisualStyleBackColor = true;
+            this.statsButton.Click += new System.EventHandler(this.statsButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(445, 325);
+            this.Controls.Add(this.statsButton);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.userNameTextBox);
             this.Controls.Add(this.clearPanelBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.playerFirstMove);
@@ -121,9 +153,12 @@
         private System.Windows.Forms.Button startGameBtn;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RadioButton computerFirstMove;
-        private System.Windows.Forms.RadioButton playerFirstMove;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button clearPanelBtn;
+        private System.Windows.Forms.TextBox userNameTextBox;
+        private System.Windows.Forms.RadioButton playerFirstMove;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button statsButton;
     }
 }
 

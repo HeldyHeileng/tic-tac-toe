@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ticTacToe
+namespace Tic_tac_toe
 {
     static class Program
     {
