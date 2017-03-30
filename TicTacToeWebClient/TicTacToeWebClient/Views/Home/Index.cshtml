@@ -1,0 +1,29 @@
+﻿@model TicTacToeWebClient.Models.GameInfoViewModels
+
+@{
+    ViewBag.Title = "Статистика игр";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Имя игрока</th>
+            <th>Первый ход</th>
+            <th>Количество ходов</th>
+            <th>Победитель</th>
+            <th>Дата создания записи</th>
+        </tr>
+        @foreach (var item in Model.GameInfoList) {
+            <tr>
+                <td>@item.UserName</td>
+                <td>@item.FirstMove</td>
+                <td>@item.MoveCount</td>
+                <td>@item.Winner</td>
+                <td>@item.CreateDate</td>
+            </tr>
+        }
+    </table>
+</div>
+

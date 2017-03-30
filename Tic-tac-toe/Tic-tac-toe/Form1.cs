@@ -10,6 +10,7 @@ using ExtensionMethods;
 using System.Threading;
 using Newtonsoft.Json;
 using System.IO;
+using System.Net;
 
 namespace Tic_tac_toe
 {
@@ -254,6 +255,7 @@ namespace Tic_tac_toe
             {
                 label1.Text = "Ничья!";
             }
+            SaveGameInfo();
         }           // работает
 
         //Проверяем, можно ли выиграть на данном наборе ячеек
@@ -673,6 +675,7 @@ namespace Tic_tac_toe
                 isGameStarted = false;
                 label1.Text = "Ничья";
                 win = PlayerType.None;
+                SaveGameInfo();
                 for (int i = 0; i < Settings.GRID_SIZE; i++)
                 {
                     for (int j = 0; j < Settings.GRID_SIZE; j++)
@@ -685,7 +688,6 @@ namespace Tic_tac_toe
         }     //работает
         private void newgame()
         {
-            SaveGameInfo();
             label1.Text = "";
             panel1.Controls.Clear();
             panel1.Invalidate();
@@ -894,35 +896,43 @@ namespace Tic_tac_toe
                 Winner = win.ToString(),
                 CreateDate = DateTime.Now
             };
+            
+            //кодируем данные
+            byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(gameInfo));
 
-            var filePath = @"c:\gameInfo.json";
+            // адрес метода для сохранения данных
+            Uri target = new Uri("http://localhost:58108/Home/SaveGameInfo");
+            WebRequest request = WebRequest.Create(target);
 
-            // Читаем что есть в файле
-            var jsonData = System.IO.File.ReadAllText(filePath);
-            // Десериализуем информацию в лист 
-            var gameInfoList = JsonConvert.DeserializeObject<List<GameInfo>>(jsonData)
-                                  ?? new List<GameInfo>();
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.ContentLength = byteArray.Length;
 
-            // Добавляем в список нашу информацию
-            gameInfoList.Add(gameInfo);
-
-            // Переписываем файл
-            jsonData = JsonConvert.SerializeObject(gameInfoList);
-            System.IO.File.WriteAllText(filePath, jsonData);
+            using (var dataStream = request.GetRequestStream())
+            {
+                dataStream.Write(byteArray, 0, byteArray.Length);
+            }            
         }
 
         public List<GameInfo> GetGameInfo()
         {
-            string info = System.IO.File.ReadAllText(@"c:\gameInfo.json");
-            try
+            List<GameInfo> gameInfo = null;
+            // адрес метода для полуения данных
+            Uri target = new Uri("http://localhost:58108/Home/GetGameInfo");
+            WebRequest request = WebRequest.Create(target);
+
+            request.Method = "GET";
+            request.ContentType = "application/json";
+
+            using (var response = (HttpWebResponse)request.GetResponse())
             {
-                return JsonConvert.DeserializeObject<List<GameInfo>>(info); //Берем информацию 
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    gameInfo = JsonConvert.DeserializeObject<List<GameInfo>>(reader.ReadToEnd());
+                }
             }
-            catch
-            {
-                label1.Text = "При попытке прочитать файл статистики произошла ошибка";
-            }
-            return null;
+            return gameInfo;
+
         }
 
         private void statsButton_Click(object sender, EventArgs e)
