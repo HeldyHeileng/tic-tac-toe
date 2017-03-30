@@ -1,24 +1,27 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
 namespace TicTacToeWebClient.Models
 {
+
     public class GameInfoViewModels
     {
         public List<GameInfo> GameInfoList { get; set; }
 
-        public GameInfoViewModels()
+        public GameInfoViewModels(GameInfoDBContext db)
         {
-            string info = System.IO.File.ReadAllText(@"c:\gameInfo.json");
-            GameInfoList = JsonConvert.DeserializeObject<List<GameInfo>>(info); //Берем информацию 
+            GameInfoList = db.GameInfo.ToList(); //Берем информацию 
         }
     }
 
     public class GameInfo
     {
+        [Key]
+        public int Id { get; set; }
         public string UserName { get; set; }
 
         public string FirstMove { get; set; }

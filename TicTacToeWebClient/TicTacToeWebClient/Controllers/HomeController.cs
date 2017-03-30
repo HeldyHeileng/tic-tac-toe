@@ -10,16 +10,21 @@ namespace TicTacToeWebClient.Controllers
 {
     public class HomeController : Controller
     {
+
+        GameInfoDBContext db = new GameInfoDBContext();
+        
         // GET: Home
         public ActionResult Index()
         {
-            return View(new GameInfoViewModels());
+            return View(new GameInfoViewModels(db));
         }
 
         [HttpPost]
         public bool SaveGameInfo(GameInfo gameInfo) {
             try
             {
+                db.GameInfo.Add(gameInfo);
+                db.SaveChanges();
                 var filePath = @"c:\gameInfo.json";
 
                 // Читаем что есть в файле
@@ -44,7 +49,7 @@ namespace TicTacToeWebClient.Controllers
         [HttpGet]
         public string GetGameInfo()
         {
-            return JsonConvert.SerializeObject(new GameInfoViewModels().GameInfoList);
+            return JsonConvert.SerializeObject(new GameInfoViewModels(db).GameInfoList);
         }
     }
 }
