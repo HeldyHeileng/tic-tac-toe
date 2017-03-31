@@ -43,7 +43,6 @@ namespace Tic_tac_toe
             DisplaySettings.crossPen = new Pen(Color.Black, 3);
             DisplaySettings.noughtPen = new Pen(Color.Black, 3);
             DisplaySettings.dashPen = new Pen(Color.Blue, 6);
-            GetGameInfo();
         }
 
         private void startGameBtn_Click(object sender, EventArgs e)
@@ -654,7 +653,7 @@ namespace Tic_tac_toe
                 }
             }
         }   //работает
-        private bool checkIfDraw()
+        public bool checkIfDraw()
         {
             bool nich = true;   //если true - то ничья
             for (int i = 0; i < Settings.GRID_SIZE; i++)   //если находим 0, то получим false, то есть не ничья, можно еще ходить

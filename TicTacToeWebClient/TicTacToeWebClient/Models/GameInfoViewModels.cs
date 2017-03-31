@@ -12,9 +12,9 @@ namespace TicTacToeWebClient.Models
     {
         public List<GameInfo> GameInfoList { get; set; }
 
-        public GameInfoViewModels(GameInfoDBContext db)
+        public GameInfoViewModels(GameInfoRepository repo)
         {
-            GameInfoList = db.GameInfo.ToList(); //Берем информацию 
+            GameInfoList = repo.GetGameInfo(); //Берем информацию 
         }
     }
 
