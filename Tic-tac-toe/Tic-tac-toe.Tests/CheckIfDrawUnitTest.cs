@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Tic_tac_toe.Tests
 {
@@ -23,7 +24,9 @@ namespace Tic_tac_toe.Tests
         public void CheckIfDrawTrue()
         {
             //Arrange
-            Form1 form = new Form1();
+            var mock = new Mock<Requester>();
+            mock.Setup(a => a.PostRequest(It.IsAny<string>(), It.IsAny<byte[]>()));
+            Form1 form = new Form1(mock.Object);
 
             //заполняем все клетки
             for (int i = 0; i < Settings.GRID_SIZE; i++) {

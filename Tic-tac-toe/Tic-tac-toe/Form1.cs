@@ -22,7 +22,7 @@ namespace Tic_tac_toe
         public int moveCounter = 0; //счетчик ходов
         public PlayerType currentMove = PlayerType.None;//true - сейчас ход компьютера, false - ход пользователя
         public PlayerType firstMove = PlayerType.None;     // кто ходит первым, 1 - ходит комп, 2 первый ходит юзер
-
+        public Requester requester;
         //Инициализируем классы объектов
         Grid grid = new Grid(); // сетка
         Dash dash = new Dash(); // черта для вычеркивания выигрышной комбинации
@@ -43,6 +43,13 @@ namespace Tic_tac_toe
             DisplaySettings.crossPen = new Pen(Color.Black, 3);
             DisplaySettings.noughtPen = new Pen(Color.Black, 3);
             DisplaySettings.dashPen = new Pen(Color.Blue, 6);
+            requester = new Requester();
+        }
+
+        public Form1(Requester requester)
+            : this()
+        {
+            this.requester = requester;
         }
 
         private void startGameBtn_Click(object sender, EventArgs e)
@@ -895,42 +902,21 @@ namespace Tic_tac_toe
                 Winner = win.ToString(),
                 CreateDate = DateTime.Now
             };
-            
+
             //кодируем данные
             byte[] byteArray = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(gameInfo));
 
-            // адрес метода для сохранения данных
-            Uri target = new Uri("http://localhost:58108/Home/SaveGameInfo");
-            WebRequest request = WebRequest.Create(target);
-
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            request.ContentLength = byteArray.Length;
-
-            using (var dataStream = request.GetRequestStream())
-            {
-                dataStream.Write(byteArray, 0, byteArray.Length);
-            }            
+            //делаем запрос
+            requester.PostRequest("http://localhost:58108/Home/SaveGameInfo", byteArray);
         }
 
         public List<GameInfo> GetGameInfo()
         {
-            List<GameInfo> gameInfo = null;
-            // адрес метода для полуения данных
-            Uri target = new Uri("http://localhost:58108/Home/GetGameInfo");
-            WebRequest request = WebRequest.Create(target);
+            //делаем запрос
+            var response = requester.GetRequest("http://localhost:58108/Home/GetGameInfo");
 
-            request.Method = "GET";
-            request.ContentType = "application/json";
-
-            using (var response = (HttpWebResponse)request.GetResponse())
-            {
-                using (var reader = new StreamReader(response.GetResponseStream()))
-                {
-                    gameInfo = JsonConvert.DeserializeObject<List<GameInfo>>(reader.ReadToEnd());
-                }
-            }
-            return gameInfo;
+            //десериализуем ответ
+            return JsonConvert.DeserializeObject<List<GameInfo>>(response);
 
         }
 
@@ -938,7 +924,8 @@ namespace Tic_tac_toe
         {
             var gameInfoList = GetGameInfo();
 
-            if (gameInfoList != null) {
+            if (gameInfoList != null)
+            {
                 StatsForm statsForm = new StatsForm(gameInfoList);
                 statsForm.Show();
             }
